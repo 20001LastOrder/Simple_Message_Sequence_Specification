@@ -1,0 +1,73 @@
+namespace ca.mcgill.ecse.smss.model;
+
+class SMSS 
+{
+  1 <@>- * Type;
+  1 -- 0..1 Operation mainMethod;
+  1 -- 0..1 Sender sender;
+}
+
+class Type
+{
+  unique name;
+  1 type <@>- * Instance objects;
+  1 type <@>- * Operation methods;
+}
+
+class Instance
+{
+  int id;
+  String name;
+  
+}
+
+class Operation {
+  String name;
+  1 operation <@>- * Block blocks; 
+  
+}
+
+class Sender {
+  isA Instance;
+  1 sender -- * Message sentMessages;
+}
+
+class Receiver {
+  isA Instance;
+  1 receiver -- * Message receivedMessages;
+}
+
+class Block {
+
+}
+
+class Message
+{
+  isA Block;
+  unique name;
+  0..1 message -> 0..1 Fragment beforeFragment;
+  0..1 message -> 0..1 Fragment afterFragment;
+}
+
+class Fragment {
+  isA Block;
+  1 fragment <@>- 2..* Operand operands;
+}
+
+class ParallelFragment {
+ isA Fragment;
+}
+
+class AlternativeFragment {
+ isA Fragment;
+}
+
+class Operand {
+  1 operand -- 1..* Message messages;
+  1 operand <@>- 0..1 Condition condition;
+}
+
+class Condition {
+  String description;
+}
+
