@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.smss.model;
 import java.util.*;
 
-// line 52 "../../../../../SMSS_model.ump"
+// line 51 "../../../../../SMSS_model.ump"
 public class Fragment extends Block
 {
 
@@ -19,9 +19,9 @@ public class Fragment extends Block
   // CONSTRUCTOR
   //------------------------
 
-  public Fragment(Operation aOperation)
+  public Fragment()
   {
-    super(aOperation);
+    super();
     operands = new ArrayList<Operand>();
   }
 
@@ -70,9 +70,9 @@ public class Fragment extends Block
     return 2;
   }
   /* Code from template association_AddMandatoryManyToOne */
-  public Operand addOperand()
+  public Operand addOperand(String aCondition, Block... allBlock)
   {
-    Operand aNewOperand = new Operand(this);
+    Operand aNewOperand = new Operand(aCondition, this, allBlock);
     return aNewOperand;
   }
 

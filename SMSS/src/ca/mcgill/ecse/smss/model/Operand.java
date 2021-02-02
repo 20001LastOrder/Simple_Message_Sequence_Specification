@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.smss.model;
 import java.util.*;
 
-// line 65 "../../../../../SMSS_model.ump"
+// line 64 "../../../../../SMSS_model.ump"
 public class Operand
 {
 
@@ -12,18 +12,26 @@ public class Operand
   // MEMBER VARIABLES
   //------------------------
 
+  //Operand Attributes
+  private String condition;
+
   //Operand Associations
-  private List<Message> messages;
-  private Condition condition;
+  private List<Block> block;
   private Fragment fragment;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Operand(Fragment aFragment)
+  public Operand(String aCondition, Fragment aFragment, Block... allBlock)
   {
-    messages = new ArrayList<Message>();
+    condition = aCondition;
+    block = new ArrayList<Block>();
+    boolean didAddBlock = setBlock(allBlock);
+    if (!didAddBlock)
+    {
+      throw new RuntimeException("Unable to create Operand, must have at least 1 block. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
     boolean didAddFragment = setFragment(aFragment);
     if (!didAddFragment)
     {
@@ -34,170 +42,189 @@ public class Operand
   //------------------------
   // INTERFACE
   //------------------------
-  /* Code from template association_GetMany */
-  public Message getMessage(int index)
+
+  public boolean setCondition(String aCondition)
   {
-    Message aMessage = messages.get(index);
-    return aMessage;
+    boolean wasSet = false;
+    condition = aCondition;
+    wasSet = true;
+    return wasSet;
   }
 
-  public List<Message> getMessages()
-  {
-    List<Message> newMessages = Collections.unmodifiableList(messages);
-    return newMessages;
-  }
-
-  public int numberOfMessages()
-  {
-    int number = messages.size();
-    return number;
-  }
-
-  public boolean hasMessages()
-  {
-    boolean has = messages.size() > 0;
-    return has;
-  }
-
-  public int indexOfMessage(Message aMessage)
-  {
-    int index = messages.indexOf(aMessage);
-    return index;
-  }
-  /* Code from template association_GetOne */
-  public Condition getCondition()
+  public String getCondition()
   {
     return condition;
   }
-
-  public boolean hasCondition()
+  /* Code from template association_GetMany */
+  public Block getBlock(int index)
   {
-    boolean has = condition != null;
+    Block aBlock = block.get(index);
+    return aBlock;
+  }
+
+  public List<Block> getBlock()
+  {
+    List<Block> newBlock = Collections.unmodifiableList(block);
+    return newBlock;
+  }
+
+  public int numberOfBlock()
+  {
+    int number = block.size();
+    return number;
+  }
+
+  public boolean hasBlock()
+  {
+    boolean has = block.size() > 0;
     return has;
+  }
+
+  public int indexOfBlock(Block aBlock)
+  {
+    int index = block.indexOf(aBlock);
+    return index;
   }
   /* Code from template association_GetOne */
   public Fragment getFragment()
   {
     return fragment;
   }
-  /* Code from template association_IsNumberOfValidMethod */
-  public boolean isNumberOfMessagesValid()
-  {
-    boolean isValid = numberOfMessages() >= minimumNumberOfMessages();
-    return isValid;
-  }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfMessages()
+  public static int minimumNumberOfBlock()
   {
     return 1;
   }
-  /* Code from template association_AddMandatoryManyToOne */
-  public Message addMessage(Operation aOperation, String aName, Sender aSender, Receiver aReceiver)
-  {
-    Message aNewMessage = new Message(aOperation, aName, aSender, aReceiver, this);
-    return aNewMessage;
-  }
-
-  public boolean addMessage(Message aMessage)
+  /* Code from template association_AddMNToOptionalOne */
+  public boolean addBlock(Block aBlock)
   {
     boolean wasAdded = false;
-    if (messages.contains(aMessage)) { return false; }
-    Operand existingOperand = aMessage.getOperand();
-    boolean isNewOperand = existingOperand != null && !this.equals(existingOperand);
-
-    if (isNewOperand && existingOperand.numberOfMessages() <= minimumNumberOfMessages())
+    if (block.contains(aBlock)) { return false; }
+    Operand existingOperand = aBlock.getOperand();
+    if (existingOperand != null && existingOperand.numberOfBlock() <= minimumNumberOfBlock())
     {
       return wasAdded;
     }
-    if (isNewOperand)
+    else if (existingOperand != null)
     {
-      aMessage.setOperand(this);
+      existingOperand.block.remove(aBlock);
     }
-    else
-    {
-      messages.add(aMessage);
-    }
+    block.add(aBlock);
+    setOperand(aBlock,this);
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeMessage(Message aMessage)
+  public boolean removeBlock(Block aBlock)
   {
     boolean wasRemoved = false;
-    //Unable to remove aMessage, as it must always have a operand
-    if (this.equals(aMessage.getOperand()))
+    if (block.contains(aBlock) && numberOfBlock() > minimumNumberOfBlock())
     {
-      return wasRemoved;
+      block.remove(aBlock);
+      setOperand(aBlock,null);
+      wasRemoved = true;
     }
-
-    //operand already at minimum (1)
-    if (numberOfMessages() <= minimumNumberOfMessages())
-    {
-      return wasRemoved;
-    }
-
-    messages.remove(aMessage);
-    wasRemoved = true;
     return wasRemoved;
   }
+  /* Code from template association_SetMNToOptionalOne */
+  public boolean setBlock(Block... newBlock)
+  {
+    boolean wasSet = false;
+    if (newBlock.length < minimumNumberOfBlock())
+    {
+      return wasSet;
+    }
+
+    ArrayList<Block> checkNewBlock = new ArrayList<Block>();
+    HashMap<Operand,Integer> operandToNewBlock = new HashMap<Operand,Integer>();
+    for (Block aBlock : newBlock)
+    {
+      if (checkNewBlock.contains(aBlock))
+      {
+        return wasSet;
+      }
+      else if (aBlock.getOperand() != null && !this.equals(aBlock.getOperand()))
+      {
+        Operand existingOperand = aBlock.getOperand();
+        if (!operandToNewBlock.containsKey(existingOperand))
+        {
+          operandToNewBlock.put(existingOperand, new Integer(existingOperand.numberOfBlock()));
+        }
+        Integer currentCount = operandToNewBlock.get(existingOperand);
+        int nextCount = currentCount - 1;
+        if (nextCount < 1)
+        {
+          return wasSet;
+        }
+        operandToNewBlock.put(existingOperand, new Integer(nextCount));
+      }
+      checkNewBlock.add(aBlock);
+    }
+
+    block.removeAll(checkNewBlock);
+
+    for (Block orphan : block)
+    {
+      setOperand(orphan, null);
+    }
+    block.clear();
+    for (Block aBlock : newBlock)
+    {
+      if (aBlock.getOperand() != null)
+      {
+        aBlock.getOperand().block.remove(aBlock);
+      }
+      setOperand(aBlock, this);
+      block.add(aBlock);
+    }
+    wasSet = true;
+    return wasSet;
+  }
+  /* Code from template association_GetPrivate */
+  private void setOperand(Block aBlock, Operand aOperand)
+  {
+    try
+    {
+      java.lang.reflect.Field mentorField = aBlock.getClass().getDeclaredField("operand");
+      mentorField.setAccessible(true);
+      mentorField.set(aBlock, aOperand);
+    }
+    catch (Exception e)
+    {
+      throw new RuntimeException("Issue internally setting aOperand to aBlock", e);
+    }
+  }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addMessageAt(Message aMessage, int index)
+  public boolean addBlockAt(Block aBlock, int index)
   {  
     boolean wasAdded = false;
-    if(addMessage(aMessage))
+    if(addBlock(aBlock))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfMessages()) { index = numberOfMessages() - 1; }
-      messages.remove(aMessage);
-      messages.add(index, aMessage);
+      if(index > numberOfBlock()) { index = numberOfBlock() - 1; }
+      block.remove(aBlock);
+      block.add(index, aBlock);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveMessageAt(Message aMessage, int index)
+  public boolean addOrMoveBlockAt(Block aBlock, int index)
   {
     boolean wasAdded = false;
-    if(messages.contains(aMessage))
+    if(block.contains(aBlock))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfMessages()) { index = numberOfMessages() - 1; }
-      messages.remove(aMessage);
-      messages.add(index, aMessage);
+      if(index > numberOfBlock()) { index = numberOfBlock() - 1; }
+      block.remove(aBlock);
+      block.add(index, aBlock);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addMessageAt(aMessage, index);
+      wasAdded = addBlockAt(aBlock, index);
     }
     return wasAdded;
-  }
-  /* Code from template association_SetOptionalOneToOne */
-  public boolean setCondition(Condition aNewCondition)
-  {
-    boolean wasSet = false;
-    if (condition != null && !condition.equals(aNewCondition) && equals(condition.getOperand()))
-    {
-      //Unable to setCondition, as existing condition would become an orphan
-      return wasSet;
-    }
-
-    condition = aNewCondition;
-    Operand anOldOperand = aNewCondition != null ? aNewCondition.getOperand() : null;
-
-    if (!this.equals(anOldOperand))
-    {
-      if (anOldOperand != null)
-      {
-        anOldOperand.condition = null;
-      }
-      if (condition != null)
-      {
-        condition.setOperand(this);
-      }
-    }
-    wasSet = true;
-    return wasSet;
   }
   /* Code from template association_SetOneToMandatoryMany */
   public boolean setFragment(Fragment aFragment)
@@ -232,18 +259,13 @@ public class Operand
 
   public void delete()
   {
-    for(int i=messages.size(); i > 0; i--)
+    while (block.size() > 0)
     {
-      Message aMessage = messages.get(i - 1);
-      aMessage.delete();
+      Block aBlock = block.get(block.size() - 1);
+      aBlock.delete();
+      block.remove(aBlock);
     }
-    Condition existingCondition = condition;
-    condition = null;
-    if (existingCondition != null)
-    {
-      existingCondition.delete();
-      existingCondition.setOperand(null);
-    }
+    
     Fragment placeholderFragment = fragment;
     this.fragment = null;
     if(placeholderFragment != null)
@@ -252,4 +274,11 @@ public class Operand
     }
   }
 
+
+  public String toString()
+  {
+    return super.toString() + "["+
+            "condition" + ":" + getCondition()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "fragment = "+(getFragment()!=null?Integer.toHexString(System.identityHashCode(getFragment())):"null");
+  }
 }

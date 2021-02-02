@@ -4,43 +4,42 @@
 package ca.mcgill.ecse.smss.model;
 import java.util.*;
 
-// line 44 "../../../../../SMSS_model.ump"
-public class Message extends Block
+// line 19 "../../../../../SMSS_model.ump"
+public class ReceiverObject
 {
 
   //------------------------
   // STATIC VARIABLES
   //------------------------
 
-  private static Map<String, Message> messagesByName = new HashMap<String, Message>();
+  private static Map<String, ReceiverObject> receiverobjectsByName = new HashMap<String, ReceiverObject>();
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
-  //Message Attributes
+  //ReceiverObject Attributes
   private String name;
 
-  //Message Associations
+  //ReceiverObject Associations
   private List<MessageExchange> messageExchanges;
-  private SMSS sMSS;
+  private ReceiverClass receiverClass;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Message(String aName, SMSS aSMSS)
+  public ReceiverObject(String aName, ReceiverClass aReceiverClass)
   {
-    super();
     if (!setName(aName))
     {
       throw new RuntimeException("Cannot create due to duplicate name. See http://manual.umple.org?RE003ViolationofUniqueness.html");
     }
     messageExchanges = new ArrayList<MessageExchange>();
-    boolean didAddSMSS = setSMSS(aSMSS);
-    if (!didAddSMSS)
+    boolean didAddReceiverClass = setReceiverClass(aReceiverClass);
+    if (!didAddReceiverClass)
     {
-      throw new RuntimeException("Unable to create message due to sMSS. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create object due to receiverClass. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
@@ -61,9 +60,9 @@ public class Message extends Block
     name = aName;
     wasSet = true;
     if (anOldName != null) {
-      messagesByName.remove(anOldName);
+      receiverobjectsByName.remove(anOldName);
     }
-    messagesByName.put(aName, this);
+    receiverobjectsByName.put(aName, this);
     return wasSet;
   }
 
@@ -72,9 +71,9 @@ public class Message extends Block
     return name;
   }
   /* Code from template attribute_GetUnique */
-  public static Message getWithName(String aName)
+  public static ReceiverObject getWithName(String aName)
   {
-    return messagesByName.get(aName);
+    return receiverobjectsByName.get(aName);
   }
   /* Code from template attribute_HasUnique */
   public static boolean hasWithName(String aName)
@@ -112,9 +111,9 @@ public class Message extends Block
     return index;
   }
   /* Code from template association_GetOne */
-  public SMSS getSMSS()
+  public ReceiverClass getReceiverClass()
   {
-    return sMSS;
+    return receiverClass;
   }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfMessageExchanges()
@@ -122,20 +121,20 @@ public class Message extends Block
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public MessageExchange addMessageExchange(ReceiverObject aReceiver)
+  public MessageExchange addMessageExchange(Message aMessage)
   {
-    return new MessageExchange(aReceiver, this);
+    return new MessageExchange(this, aMessage);
   }
 
   public boolean addMessageExchange(MessageExchange aMessageExchange)
   {
     boolean wasAdded = false;
     if (messageExchanges.contains(aMessageExchange)) { return false; }
-    Message existingMessage = aMessageExchange.getMessage();
-    boolean isNewMessage = existingMessage != null && !this.equals(existingMessage);
-    if (isNewMessage)
+    ReceiverObject existingReceiver = aMessageExchange.getReceiver();
+    boolean isNewReceiver = existingReceiver != null && !this.equals(existingReceiver);
+    if (isNewReceiver)
     {
-      aMessageExchange.setMessage(this);
+      aMessageExchange.setReceiver(this);
     }
     else
     {
@@ -148,8 +147,8 @@ public class Message extends Block
   public boolean removeMessageExchange(MessageExchange aMessageExchange)
   {
     boolean wasRemoved = false;
-    //Unable to remove aMessageExchange, as it must always have a message
-    if (!this.equals(aMessageExchange.getMessage()))
+    //Unable to remove aMessageExchange, as it must always have a receiver
+    if (!this.equals(aMessageExchange.getReceiver()))
     {
       messageExchanges.remove(aMessageExchange);
       wasRemoved = true;
@@ -189,40 +188,39 @@ public class Message extends Block
     return wasAdded;
   }
   /* Code from template association_SetOneToMany */
-  public boolean setSMSS(SMSS aSMSS)
+  public boolean setReceiverClass(ReceiverClass aReceiverClass)
   {
     boolean wasSet = false;
-    if (aSMSS == null)
+    if (aReceiverClass == null)
     {
       return wasSet;
     }
 
-    SMSS existingSMSS = sMSS;
-    sMSS = aSMSS;
-    if (existingSMSS != null && !existingSMSS.equals(aSMSS))
+    ReceiverClass existingReceiverClass = receiverClass;
+    receiverClass = aReceiverClass;
+    if (existingReceiverClass != null && !existingReceiverClass.equals(aReceiverClass))
     {
-      existingSMSS.removeMessage(this);
+      existingReceiverClass.removeObject(this);
     }
-    sMSS.addMessage(this);
+    receiverClass.addObject(this);
     wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
-    messagesByName.remove(getName());
+    receiverobjectsByName.remove(getName());
     for(int i=messageExchanges.size(); i > 0; i--)
     {
       MessageExchange aMessageExchange = messageExchanges.get(i - 1);
       aMessageExchange.delete();
     }
-    SMSS placeholderSMSS = sMSS;
-    this.sMSS = null;
-    if(placeholderSMSS != null)
+    ReceiverClass placeholderReceiverClass = receiverClass;
+    this.receiverClass = null;
+    if(placeholderReceiverClass != null)
     {
-      placeholderSMSS.removeMessage(this);
+      placeholderReceiverClass.removeObject(this);
     }
-    super.delete();
   }
 
 
@@ -230,6 +228,6 @@ public class Message extends Block
   {
     return super.toString() + "["+
             "name" + ":" + getName()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "sMSS = "+(getSMSS()!=null?Integer.toHexString(System.identityHashCode(getSMSS())):"null");
+            "  " + "receiverClass = "+(getReceiverClass()!=null?Integer.toHexString(System.identityHashCode(getReceiverClass())):"null");
   }
 }

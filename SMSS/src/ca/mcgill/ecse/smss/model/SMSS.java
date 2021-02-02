@@ -12,10 +12,15 @@ public class SMSS
   // MEMBER VARIABLES
   //------------------------
 
+  //SMSS Attributes
+  private String methodName;
+  private String senderClass;
+  private String senderName;
+
   //SMSS Associations
-  private List<Type> types;
-  private Operation mainMethod;
-  private Sender sender;
+  private List<ReceiverClass> receiverClasses;
+  private List<Message> messages;
+  private List<Block> blocks;
 
   //------------------------
   // CONSTRUCTOR
@@ -23,212 +28,393 @@ public class SMSS
 
   public SMSS()
   {
-    types = new ArrayList<Type>();
+    methodName = null;
+    senderClass = null;
+    senderName = null;
+    receiverClasses = new ArrayList<ReceiverClass>();
+    messages = new ArrayList<Message>();
+    blocks = new ArrayList<Block>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
+
+  public boolean setMethodName(String aMethodName)
+  {
+    boolean wasSet = false;
+    methodName = aMethodName;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public boolean setSenderClass(String aSenderClass)
+  {
+    boolean wasSet = false;
+    senderClass = aSenderClass;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public boolean setSenderName(String aSenderName)
+  {
+    boolean wasSet = false;
+    senderName = aSenderName;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public String getMethodName()
+  {
+    return methodName;
+  }
+
+  public String getSenderClass()
+  {
+    return senderClass;
+  }
+
+  public String getSenderName()
+  {
+    return senderName;
+  }
   /* Code from template association_GetMany */
-  public Type getType(int index)
+  public ReceiverClass getReceiverClass(int index)
   {
-    Type aType = types.get(index);
-    return aType;
+    ReceiverClass aReceiverClass = receiverClasses.get(index);
+    return aReceiverClass;
   }
 
-  public List<Type> getTypes()
+  public List<ReceiverClass> getReceiverClasses()
   {
-    List<Type> newTypes = Collections.unmodifiableList(types);
-    return newTypes;
+    List<ReceiverClass> newReceiverClasses = Collections.unmodifiableList(receiverClasses);
+    return newReceiverClasses;
   }
 
-  public int numberOfTypes()
+  public int numberOfReceiverClasses()
   {
-    int number = types.size();
+    int number = receiverClasses.size();
     return number;
   }
 
-  public boolean hasTypes()
+  public boolean hasReceiverClasses()
   {
-    boolean has = types.size() > 0;
+    boolean has = receiverClasses.size() > 0;
     return has;
   }
 
-  public int indexOfType(Type aType)
+  public int indexOfReceiverClass(ReceiverClass aReceiverClass)
   {
-    int index = types.indexOf(aType);
+    int index = receiverClasses.indexOf(aReceiverClass);
     return index;
   }
-  /* Code from template association_GetOne */
-  public Operation getMainMethod()
+  /* Code from template association_GetMany */
+  public Message getMessage(int index)
   {
-    return mainMethod;
+    Message aMessage = messages.get(index);
+    return aMessage;
   }
 
-  public boolean hasMainMethod()
+  public List<Message> getMessages()
   {
-    boolean has = mainMethod != null;
-    return has;
-  }
-  /* Code from template association_GetOne */
-  public Sender getSender()
-  {
-    return sender;
+    List<Message> newMessages = Collections.unmodifiableList(messages);
+    return newMessages;
   }
 
-  public boolean hasSender()
+  public int numberOfMessages()
   {
-    boolean has = sender != null;
+    int number = messages.size();
+    return number;
+  }
+
+  public boolean hasMessages()
+  {
+    boolean has = messages.size() > 0;
     return has;
+  }
+
+  public int indexOfMessage(Message aMessage)
+  {
+    int index = messages.indexOf(aMessage);
+    return index;
+  }
+  /* Code from template association_GetMany */
+  public Block getBlock(int index)
+  {
+    Block aBlock = blocks.get(index);
+    return aBlock;
+  }
+
+  public List<Block> getBlocks()
+  {
+    List<Block> newBlocks = Collections.unmodifiableList(blocks);
+    return newBlocks;
+  }
+
+  public int numberOfBlocks()
+  {
+    int number = blocks.size();
+    return number;
+  }
+
+  public boolean hasBlocks()
+  {
+    boolean has = blocks.size() > 0;
+    return has;
+  }
+
+  public int indexOfBlock(Block aBlock)
+  {
+    int index = blocks.indexOf(aBlock);
+    return index;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfTypes()
+  public static int minimumNumberOfReceiverClasses()
   {
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Type addType(String aName)
+  public ReceiverClass addReceiverClass(String aName)
   {
-    return new Type(aName, this);
+    return new ReceiverClass(aName, this);
   }
 
-  public boolean addType(Type aType)
+  public boolean addReceiverClass(ReceiverClass aReceiverClass)
   {
     boolean wasAdded = false;
-    if (types.contains(aType)) { return false; }
-    SMSS existingSMSS = aType.getSMSS();
+    if (receiverClasses.contains(aReceiverClass)) { return false; }
+    SMSS existingSMSS = aReceiverClass.getSMSS();
     boolean isNewSMSS = existingSMSS != null && !this.equals(existingSMSS);
     if (isNewSMSS)
     {
-      aType.setSMSS(this);
+      aReceiverClass.setSMSS(this);
     }
     else
     {
-      types.add(aType);
+      receiverClasses.add(aReceiverClass);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeType(Type aType)
+  public boolean removeReceiverClass(ReceiverClass aReceiverClass)
   {
     boolean wasRemoved = false;
-    //Unable to remove aType, as it must always have a sMSS
-    if (!this.equals(aType.getSMSS()))
+    //Unable to remove aReceiverClass, as it must always have a sMSS
+    if (!this.equals(aReceiverClass.getSMSS()))
     {
-      types.remove(aType);
+      receiverClasses.remove(aReceiverClass);
       wasRemoved = true;
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addTypeAt(Type aType, int index)
+  public boolean addReceiverClassAt(ReceiverClass aReceiverClass, int index)
   {  
     boolean wasAdded = false;
-    if(addType(aType))
+    if(addReceiverClass(aReceiverClass))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfTypes()) { index = numberOfTypes() - 1; }
-      types.remove(aType);
-      types.add(index, aType);
+      if(index > numberOfReceiverClasses()) { index = numberOfReceiverClasses() - 1; }
+      receiverClasses.remove(aReceiverClass);
+      receiverClasses.add(index, aReceiverClass);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveTypeAt(Type aType, int index)
+  public boolean addOrMoveReceiverClassAt(ReceiverClass aReceiverClass, int index)
   {
     boolean wasAdded = false;
-    if(types.contains(aType))
+    if(receiverClasses.contains(aReceiverClass))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfTypes()) { index = numberOfTypes() - 1; }
-      types.remove(aType);
-      types.add(index, aType);
+      if(index > numberOfReceiverClasses()) { index = numberOfReceiverClasses() - 1; }
+      receiverClasses.remove(aReceiverClass);
+      receiverClasses.add(index, aReceiverClass);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addTypeAt(aType, index);
+      wasAdded = addReceiverClassAt(aReceiverClass, index);
     }
     return wasAdded;
   }
-  /* Code from template association_SetOptionalOneToOne */
-  public boolean setMainMethod(Operation aNewMainMethod)
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfMessages()
   {
-    boolean wasSet = false;
-    if (mainMethod != null && !mainMethod.equals(aNewMainMethod) && equals(mainMethod.getSMSS()))
-    {
-      //Unable to setMainMethod, as existing mainMethod would become an orphan
-      return wasSet;
-    }
-
-    mainMethod = aNewMainMethod;
-    SMSS anOldSMSS = aNewMainMethod != null ? aNewMainMethod.getSMSS() : null;
-
-    if (!this.equals(anOldSMSS))
-    {
-      if (anOldSMSS != null)
-      {
-        anOldSMSS.mainMethod = null;
-      }
-      if (mainMethod != null)
-      {
-        mainMethod.setSMSS(this);
-      }
-    }
-    wasSet = true;
-    return wasSet;
+    return 0;
   }
-  /* Code from template association_SetOptionalOneToOne */
-  public boolean setSender(Sender aNewSender)
+  /* Code from template association_AddManyToOne */
+  public Message addMessage(String aName)
   {
-    boolean wasSet = false;
-    if (sender != null && !sender.equals(aNewSender) && equals(sender.getSMSS()))
-    {
-      //Unable to setSender, as existing sender would become an orphan
-      return wasSet;
-    }
+    return new Message(aName, this);
+  }
 
-    sender = aNewSender;
-    SMSS anOldSMSS = aNewSender != null ? aNewSender.getSMSS() : null;
-
-    if (!this.equals(anOldSMSS))
+  public boolean addMessage(Message aMessage)
+  {
+    boolean wasAdded = false;
+    if (messages.contains(aMessage)) { return false; }
+    SMSS existingSMSS = aMessage.getSMSS();
+    boolean isNewSMSS = existingSMSS != null && !this.equals(existingSMSS);
+    if (isNewSMSS)
     {
-      if (anOldSMSS != null)
-      {
-        anOldSMSS.sender = null;
-      }
-      if (sender != null)
-      {
-        sender.setSMSS(this);
-      }
+      aMessage.setSMSS(this);
     }
-    wasSet = true;
-    return wasSet;
+    else
+    {
+      messages.add(aMessage);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeMessage(Message aMessage)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aMessage, as it must always have a sMSS
+    if (!this.equals(aMessage.getSMSS()))
+    {
+      messages.remove(aMessage);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addMessageAt(Message aMessage, int index)
+  {  
+    boolean wasAdded = false;
+    if(addMessage(aMessage))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfMessages()) { index = numberOfMessages() - 1; }
+      messages.remove(aMessage);
+      messages.add(index, aMessage);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveMessageAt(Message aMessage, int index)
+  {
+    boolean wasAdded = false;
+    if(messages.contains(aMessage))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfMessages()) { index = numberOfMessages() - 1; }
+      messages.remove(aMessage);
+      messages.add(index, aMessage);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addMessageAt(aMessage, index);
+    }
+    return wasAdded;
+  }
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfBlocks()
+  {
+    return 0;
+  }
+  /* Code from template association_AddManyToOptionalOne */
+  public boolean addBlock(Block aBlock)
+  {
+    boolean wasAdded = false;
+    if (blocks.contains(aBlock)) { return false; }
+    SMSS existingSMSS = aBlock.getSMSS();
+    if (existingSMSS == null)
+    {
+      aBlock.setSMSS(this);
+    }
+    else if (!this.equals(existingSMSS))
+    {
+      existingSMSS.removeBlock(aBlock);
+      addBlock(aBlock);
+    }
+    else
+    {
+      blocks.add(aBlock);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeBlock(Block aBlock)
+  {
+    boolean wasRemoved = false;
+    if (blocks.contains(aBlock))
+    {
+      blocks.remove(aBlock);
+      aBlock.setSMSS(null);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addBlockAt(Block aBlock, int index)
+  {  
+    boolean wasAdded = false;
+    if(addBlock(aBlock))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfBlocks()) { index = numberOfBlocks() - 1; }
+      blocks.remove(aBlock);
+      blocks.add(index, aBlock);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveBlockAt(Block aBlock, int index)
+  {
+    boolean wasAdded = false;
+    if(blocks.contains(aBlock))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfBlocks()) { index = numberOfBlocks() - 1; }
+      blocks.remove(aBlock);
+      blocks.add(index, aBlock);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addBlockAt(aBlock, index);
+    }
+    return wasAdded;
   }
 
   public void delete()
   {
-    while (types.size() > 0)
+    while (receiverClasses.size() > 0)
     {
-      Type aType = types.get(types.size() - 1);
-      aType.delete();
-      types.remove(aType);
+      ReceiverClass aReceiverClass = receiverClasses.get(receiverClasses.size() - 1);
+      aReceiverClass.delete();
+      receiverClasses.remove(aReceiverClass);
     }
     
-    Operation existingMainMethod = mainMethod;
-    mainMethod = null;
-    if (existingMainMethod != null)
+    while (messages.size() > 0)
     {
-      existingMainMethod.delete();
+      Message aMessage = messages.get(messages.size() - 1);
+      aMessage.delete();
+      messages.remove(aMessage);
     }
-    Sender existingSender = sender;
-    sender = null;
-    if (existingSender != null)
+    
+    while (blocks.size() > 0)
     {
-      existingSender.delete();
+      Block aBlock = blocks.get(blocks.size() - 1);
+      aBlock.delete();
+      blocks.remove(aBlock);
     }
+    
   }
 
+
+  public String toString()
+  {
+    return super.toString() + "["+
+            "methodName" + ":" + getMethodName()+ "," +
+            "senderClass" + ":" + getSenderClass()+ "," +
+            "senderName" + ":" + getSenderName()+ "]";
+  }
 }

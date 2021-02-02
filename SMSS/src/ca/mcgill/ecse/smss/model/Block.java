@@ -3,7 +3,7 @@
 
 package ca.mcgill.ecse.smss.model;
 
-// line 40 "../../../../../SMSS_model.ump"
+// line 30 "../../../../../SMSS_model.ump"
 public class Block
 {
 
@@ -12,56 +12,134 @@ public class Block
   //------------------------
 
   //Block Associations
-  private Operation operation;
+  private SMSS sMSS;
+  private Operand operand;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Block(Operation aOperation)
-  {
-    boolean didAddOperation = setOperation(aOperation);
-    if (!didAddOperation)
-    {
-      throw new RuntimeException("Unable to create block due to operation. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-  }
+  public Block()
+  {}
 
   //------------------------
   // INTERFACE
   //------------------------
   /* Code from template association_GetOne */
-  public Operation getOperation()
+  public SMSS getSMSS()
   {
-    return operation;
+    return sMSS;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setOperation(Operation aOperation)
+
+  public boolean hasSMSS()
+  {
+    boolean has = sMSS != null;
+    return has;
+  }
+  /* Code from template association_GetOne */
+  public Operand getOperand()
+  {
+    return operand;
+  }
+
+  public boolean hasOperand()
+  {
+    boolean has = operand != null;
+    return has;
+  }
+  /* Code from template association_SetOptionalOneToMany */
+  public boolean setSMSS(SMSS aSMSS)
   {
     boolean wasSet = false;
-    if (aOperation == null)
+    // line 38 "../../../../../SMSS_model.ump"
+    if (operand != null) {
+      		throw new RuntimeException("The block can only belong to either smss or operand");
+      	}
+    // END OF UMPLE BEFORE INJECTION
+    SMSS existingSMSS = sMSS;
+    sMSS = aSMSS;
+    if (existingSMSS != null && !existingSMSS.equals(aSMSS))
     {
-      return wasSet;
+      existingSMSS.removeBlock(this);
     }
-
-    Operation existingOperation = operation;
-    operation = aOperation;
-    if (existingOperation != null && !existingOperation.equals(aOperation))
+    if (aSMSS != null)
     {
-      existingOperation.removeBlock(this);
+      aSMSS.addBlock(this);
     }
-    operation.addBlock(this);
     wasSet = true;
     return wasSet;
   }
+  /* Code from template association_SetOptionalOneToMandatoryMany */
+  public boolean setOperand(Operand aOperand)
+  {
+    //
+    // This source of this source generation is association_SetOptionalOneToMandatoryMany.jet
+    // This set file assumes the generation of a maximumNumberOfXXX method does not exist because 
+    // it's not required (No upper bound)
+    //   
+    boolean wasSet = false;
+    Operand existingOperand = operand;
 
+    if (existingOperand == null)
+    {
+      if (aOperand != null)
+      {
+        if (aOperand.addBlock(this))
+        {
+          existingOperand = aOperand;
+          wasSet = true;
+        }
+      }
+    } 
+    else if (existingOperand != null)
+    {
+      if (aOperand == null)
+      {
+        if (existingOperand.minimumNumberOfBlock() < existingOperand.numberOfBlock())
+        {
+          existingOperand.removeBlock(this);
+          existingOperand = aOperand;  // aOperand == null
+          wasSet = true;
+        }
+      } 
+      else
+      {
+        if (existingOperand.minimumNumberOfBlock() < existingOperand.numberOfBlock())
+        {
+          existingOperand.removeBlock(this);
+          aOperand.addBlock(this);
+          existingOperand = aOperand;
+          wasSet = true;
+        }
+      }
+    }
+    if (wasSet)
+    {
+      operand = existingOperand;
+    }
+    return wasSet;
+  }
+  
   public void delete()
   {
-    Operation placeholderOperation = operation;
-    this.operation = null;
-    if(placeholderOperation != null)
+    if (sMSS != null)
     {
-      placeholderOperation.removeBlock(this);
+      SMSS placeholderSMSS = sMSS;
+      this.sMSS = null;
+      placeholderSMSS.removeBlock(this);
+    }
+    if (operand != null)
+    {
+      if (operand.numberOfBlock() <= 1)
+      {
+        operand.delete();
+      }
+      else
+      {
+        Operand placeholderOperand = operand;
+        this.operand = null;
+        placeholderOperand.removeBlock(this);
+      }
     }
   }
 
