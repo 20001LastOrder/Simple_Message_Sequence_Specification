@@ -65,7 +65,11 @@ public class SmssViewApplication extends Application {
 		gridPane.add(new Separator(Orientation.VERTICAL), 1, 2);
 		gridPane.add(makeReceiverSection(), 2, 2);
 		gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 3, 3, 1);
-		gridPane.add(makeMethodVisualizationSection(), 2, 4);
+		gridPane.add(makeMessageSection(), 0, 4);
+		gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 5);
+		gridPane.add(makeAddToMethodSection(), 0, 6);
+		gridPane.add(new Separator(Orientation.VERTICAL), 1, 4, 1, 3);
+		gridPane.add(makeMethodVisualizationSection(), 2, 4, 1, 3);		
 		return gridPane;
 }
 	
@@ -93,34 +97,7 @@ public class SmssViewApplication extends Application {
 										   updateSenderButton);
 		return senderSection;
 	}
-	
-	private Node makeReceiverTypeSection() {
-		// create UI elements
-		Label receiverTypeSectionLabel = new Label("Add Receiver Type");
-		Text receiverTypeText = new Text("Receiver Type: ");
-		TextField receiverTypeField = new TextField();
-		Button addReceiverTypeButton = new Button("Add");
-		
-		// TODO set action of the add button
-		addReceiverTypeButton.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
-		});
-		
-		// create section container
-		GridPane receiverTypeSection = new GridPane();
-		receiverTypeSection.setPadding(new Insets(10, 10, 10, 10)); 
-		receiverTypeSection.setVgap(5); 
-		receiverTypeSection.setHgap(10);
-		
-		// add elements to the container
-		receiverTypeSection.add(receiverTypeSectionLabel, 0, 0, 3, 1);
-		receiverTypeSection.add(receiverTypeText, 0, 1);
-		receiverTypeSection.add(receiverTypeField, 0, 2);
-		receiverTypeSection.add(addReceiverTypeButton, 1, 2);
-		
-		return receiverTypeSection;
-	}
-	
+
 	private Node makeReceiverSection() {
 		// create UI elements
 		Label receiverSectionLabel = new Label("Add Receiver");
@@ -140,10 +117,7 @@ public class SmssViewApplication extends Application {
 		});
 		
 		// create section container
-		GridPane receiverSection = new GridPane();
-		receiverSection.setPadding(new Insets(10, 10, 10, 10)); 
-		receiverSection.setVgap(5); 
-		receiverSection.setHgap(10);
+		GridPane receiverSection = createGridPane();
 		
 		// add elements to the container
 		receiverSection.add(receiverSectionLabel, 0, 0, 3, 1);
@@ -156,8 +130,67 @@ public class SmssViewApplication extends Application {
 		return receiverSection;
 	}
 	
+	private Node makeReceiverTypeSection() {		
+		return makeSingleTextFieldSection("Add Receiver Type", "Receiver Type: ", "Add");
+	}
+	
+	private Node makeMessageSection() {
+		return makeSingleTextFieldSection("Create Message", "Message Name: ", "Add");
+	}
+	
+	private Node makeAddToMethodSection() {
+		// create UI element
+		Label addToMethodSectionLabel = new Label("Add to Method / Fragment");
+		Text messageNameText = new Text("Message Name:");
+		ChoiceBox<String> messageChoice = new ChoiceBox<>();
+		Text receiverTypeText = new Text("Receiver Type:");
+		ChoiceBox<String> receiverTypeChoice = new ChoiceBox<>();
+		Text receiverNameText = new Text("Receiver Name:");
+		ChoiceBox<String> receiverNameChoice = new ChoiceBox<>();
+		Button addButton = new Button("Add");
+		
+		// create section container
+		GridPane addToMethodSection = createGridPane();
+		
+		// TODO add event handling for different choice boxes
+		
+		// Maximize sizes of choice boxes and button
+		messageChoice.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		GridPane.setHgrow(messageChoice, Priority.ALWAYS);
+		receiverTypeChoice.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		GridPane.setHgrow(receiverTypeChoice, Priority.ALWAYS);
+		receiverNameChoice.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		GridPane.setHgrow(receiverNameChoice, Priority.ALWAYS);
+		addButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		GridPane.setHgrow(addButton, Priority.ALWAYS);
+		
+		
+		// TODO: Add handling for button
+		addButton.setOnAction(a -> {
+			// makePopupWindow("to be implemented!");
+			GridPane p = (GridPane) mainStage.getScene().getRoot();
+			p.getChildren().remove(addToMethodSection);
+			p.add(makeMessageSection(), 0, 6);
+		});
+		
+		// add UI elements to the container
+		addToMethodSection.add(addToMethodSectionLabel, 0, 0);
+		addToMethodSection.add(messageNameText, 0, 1);
+		addToMethodSection.add(receiverTypeText, 1, 1);
+		addToMethodSection.add(receiverNameText, 2, 1);
+		addToMethodSection.add(messageChoice, 0, 2);
+		addToMethodSection.add(receiverTypeChoice, 1, 2);
+		addToMethodSection.add(receiverNameChoice, 2, 2);
+		addToMethodSection.add(addButton, 2, 3);
+
+
+		return addToMethodSection;
+	}
+	
 	private Node makeMethodVisualizationSection() {
 		ScrollPane methodVisualizationSection = new ScrollPane();
+		
+		// TODO Remove placeholder
 		Text methodText = new Text("asdasdadasd\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\nasedsd");
 		
 		// TODO Add action listener to retrieve the text content
@@ -165,6 +198,15 @@ public class SmssViewApplication extends Application {
 		methodVisualizationSection.setContent(methodText);
 		
 		return methodVisualizationSection;
+	}
+	
+	private GridPane createGridPane() {
+		GridPane section = new GridPane();
+		section.setPadding(new Insets(10, 10, 10, 10)); 
+		section.setVgap(5); 
+		section.setHgap(10);
+		
+		return section;
 	}
 	
 	private void makePopupWindow(String message) {
@@ -189,5 +231,32 @@ public class SmssViewApplication extends Application {
 		dialog.setScene(dialogScene);
 		dialog.setTitle("Dialog"); 
 		dialog.show();
+	}
+	
+	private Node makeSingleTextFieldSection(String sectionName, String labelName, String buttonName) {
+		// create UI elements
+			Label sectionLabel = new Label(sectionName);
+			Text text = new Text(labelName);
+			TextField field = new TextField();
+			Button button = new Button(buttonName);
+			
+			// TODO set action of the add button
+			button.setOnAction(a -> {
+				makePopupWindow("to be implemented!");
+			});
+			
+			// create section container
+			GridPane section = new GridPane();
+			section.setPadding(new Insets(10, 10, 10, 10)); 
+			section.setVgap(5); 
+			section.setHgap(10);
+			
+			// add elements to the container
+			section.add(sectionLabel, 0, 0, 3, 1);
+			section.add(text, 0, 1);
+			section.add(field, 0, 2);
+			section.add(button, 1, 2);
+			
+			return section;
 	}
 }
