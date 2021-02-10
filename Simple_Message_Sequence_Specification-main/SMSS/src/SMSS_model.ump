@@ -1,0 +1,68 @@
+namespace ca.mcgill.ecse.smss.model;
+
+class SMSS 
+{
+  lazy String methodName;
+  lazy String senderClass;
+  lazy String senderName;
+  1 <@>- * ReceiverClass receiverClasses;
+  1 <@>- * Message messages;
+  0..1 <@>- * Block blocks;
+}
+
+class ReceiverClass
+{
+  unique String name;
+  1 <@>- * ReceiverObject objects;
+}
+
+class ReceiverObject
+{
+  unique String name;
+  1 receiver -- * MessageExchange messageExchanges;  
+}
+
+class MessageExchange
+{
+  
+}
+
+class Block {
+  before setOperand {
+  	if (sMSS != null) {
+  		throw new RuntimeException("The block can only belong to either smss or operand");
+  	}
+  }
+  
+  before setSMSS {
+  	if (operand != null) {
+  		throw new RuntimeException("The block can only belong to either smss or operand");
+  	}
+  }
+}
+
+class Message
+{
+  isA Block;
+  unique String name;
+  1 message -- * MessageExchange messageExchanges;
+}
+
+class Fragment {
+  isA Block;
+  1 fragment <@>- * Operand operands;
+}
+
+class ParallelFragment {
+ isA Fragment;
+}
+
+class AlternativeFragment {
+ isA Fragment;
+}
+
+class Operand {
+  String condition;
+  0..1 operand <@>- * Block block;
+ 
+}
