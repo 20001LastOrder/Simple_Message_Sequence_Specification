@@ -2,9 +2,9 @@ namespace ca.mcgill.ecse.smss.model;
 
 class SMSS 
 {
-  lazy String methodName;
-  lazy String senderClass;
-  lazy String senderName;
+  String methodName = "";
+  String senderClass = "";
+  String senderName = "";
   1 <@>- * ReceiverClass receiverClasses;
   1 <@>- * Message messages;
   0..1 <@>- * Block blocks;

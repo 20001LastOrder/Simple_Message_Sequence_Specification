@@ -58,22 +58,15 @@ public class Fragment extends Block
     int index = operands.indexOf(aOperand);
     return index;
   }
-  /* Code from template association_IsNumberOfValidMethod */
-  public boolean isNumberOfOperandsValid()
-  {
-    boolean isValid = numberOfOperands() >= minimumNumberOfOperands();
-    return isValid;
-  }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfOperands()
   {
-    return 2;
+    return 0;
   }
-  /* Code from template association_AddMandatoryManyToOne */
-  public Operand addOperand(String aCondition, Block... allBlock)
+  /* Code from template association_AddManyToOne */
+  public Operand addOperand(String aCondition)
   {
-    Operand aNewOperand = new Operand(aCondition, this, allBlock);
-    return aNewOperand;
+    return new Operand(aCondition, this);
   }
 
   public boolean addOperand(Operand aOperand)
@@ -82,11 +75,6 @@ public class Fragment extends Block
     if (operands.contains(aOperand)) { return false; }
     Fragment existingFragment = aOperand.getFragment();
     boolean isNewFragment = existingFragment != null && !this.equals(existingFragment);
-
-    if (isNewFragment && existingFragment.numberOfOperands() <= minimumNumberOfOperands())
-    {
-      return wasAdded;
-    }
     if (isNewFragment)
     {
       aOperand.setFragment(this);
@@ -103,19 +91,11 @@ public class Fragment extends Block
   {
     boolean wasRemoved = false;
     //Unable to remove aOperand, as it must always have a fragment
-    if (this.equals(aOperand.getFragment()))
+    if (!this.equals(aOperand.getFragment()))
     {
-      return wasRemoved;
+      operands.remove(aOperand);
+      wasRemoved = true;
     }
-
-    //fragment already at minimum (2)
-    if (numberOfOperands() <= minimumNumberOfOperands())
-    {
-      return wasRemoved;
-    }
-
-    operands.remove(aOperand);
-    wasRemoved = true;
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */

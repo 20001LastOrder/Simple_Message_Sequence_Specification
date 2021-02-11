@@ -23,15 +23,10 @@ public class Operand
   // CONSTRUCTOR
   //------------------------
 
-  public Operand(String aCondition, Fragment aFragment, Block... allBlock)
+  public Operand(String aCondition, Fragment aFragment)
   {
     condition = aCondition;
     block = new ArrayList<Block>();
-    boolean didAddBlock = setBlock(allBlock);
-    if (!didAddBlock)
-    {
-      throw new RuntimeException("Unable to create Operand, must have at least 1 block. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
     boolean didAddFragment = setFragment(aFragment);
     if (!didAddFragment)
     {
@@ -93,24 +88,27 @@ public class Operand
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfBlock()
   {
-    return 1;
+    return 0;
   }
-  /* Code from template association_AddMNToOptionalOne */
+  /* Code from template association_AddManyToOptionalOne */
   public boolean addBlock(Block aBlock)
   {
     boolean wasAdded = false;
     if (block.contains(aBlock)) { return false; }
     Operand existingOperand = aBlock.getOperand();
-    if (existingOperand != null && existingOperand.numberOfBlock() <= minimumNumberOfBlock())
+    if (existingOperand == null)
     {
-      return wasAdded;
+      aBlock.setOperand(this);
     }
-    else if (existingOperand != null)
+    else if (!this.equals(existingOperand))
     {
-      existingOperand.block.remove(aBlock);
+      existingOperand.removeBlock(aBlock);
+      addBlock(aBlock);
     }
-    block.add(aBlock);
-    setOperand(aBlock,this);
+    else
+    {
+      block.add(aBlock);
+    }
     wasAdded = true;
     return wasAdded;
   }
@@ -118,81 +116,13 @@ public class Operand
   public boolean removeBlock(Block aBlock)
   {
     boolean wasRemoved = false;
-    if (block.contains(aBlock) && numberOfBlock() > minimumNumberOfBlock())
+    if (block.contains(aBlock))
     {
       block.remove(aBlock);
-      setOperand(aBlock,null);
+      aBlock.setOperand(null);
       wasRemoved = true;
     }
     return wasRemoved;
-  }
-  /* Code from template association_SetMNToOptionalOne */
-  public boolean setBlock(Block... newBlock)
-  {
-    boolean wasSet = false;
-    if (newBlock.length < minimumNumberOfBlock())
-    {
-      return wasSet;
-    }
-
-    ArrayList<Block> checkNewBlock = new ArrayList<Block>();
-    HashMap<Operand,Integer> operandToNewBlock = new HashMap<Operand,Integer>();
-    for (Block aBlock : newBlock)
-    {
-      if (checkNewBlock.contains(aBlock))
-      {
-        return wasSet;
-      }
-      else if (aBlock.getOperand() != null && !this.equals(aBlock.getOperand()))
-      {
-        Operand existingOperand = aBlock.getOperand();
-        if (!operandToNewBlock.containsKey(existingOperand))
-        {
-          operandToNewBlock.put(existingOperand, new Integer(existingOperand.numberOfBlock()));
-        }
-        Integer currentCount = operandToNewBlock.get(existingOperand);
-        int nextCount = currentCount - 1;
-        if (nextCount < 1)
-        {
-          return wasSet;
-        }
-        operandToNewBlock.put(existingOperand, new Integer(nextCount));
-      }
-      checkNewBlock.add(aBlock);
-    }
-
-    block.removeAll(checkNewBlock);
-
-    for (Block orphan : block)
-    {
-      setOperand(orphan, null);
-    }
-    block.clear();
-    for (Block aBlock : newBlock)
-    {
-      if (aBlock.getOperand() != null)
-      {
-        aBlock.getOperand().block.remove(aBlock);
-      }
-      setOperand(aBlock, this);
-      block.add(aBlock);
-    }
-    wasSet = true;
-    return wasSet;
-  }
-  /* Code from template association_GetPrivate */
-  private void setOperand(Block aBlock, Operand aOperand)
-  {
-    try
-    {
-      java.lang.reflect.Field mentorField = aBlock.getClass().getDeclaredField("operand");
-      mentorField.setAccessible(true);
-      mentorField.set(aBlock, aOperand);
-    }
-    catch (Exception e)
-    {
-      throw new RuntimeException("Issue internally setting aOperand to aBlock", e);
-    }
   }
   /* Code from template association_AddIndexControlFunctions */
   public boolean addBlockAt(Block aBlock, int index)
@@ -226,17 +156,11 @@ public class Operand
     }
     return wasAdded;
   }
-  /* Code from template association_SetOneToMandatoryMany */
+  /* Code from template association_SetOneToMany */
   public boolean setFragment(Fragment aFragment)
   {
     boolean wasSet = false;
-    //Must provide fragment to operand
     if (aFragment == null)
-    {
-      return wasSet;
-    }
-
-    if (fragment != null && fragment.numberOfOperands() <= Fragment.minimumNumberOfOperands())
     {
       return wasSet;
     }
@@ -245,12 +169,7 @@ public class Operand
     fragment = aFragment;
     if (existingFragment != null && !existingFragment.equals(aFragment))
     {
-      boolean didRemove = existingFragment.removeOperand(this);
-      if (!didRemove)
-      {
-        fragment = existingFragment;
-        return wasSet;
-      }
+      existingFragment.removeOperand(this);
     }
     fragment.addOperand(this);
     wasSet = true;

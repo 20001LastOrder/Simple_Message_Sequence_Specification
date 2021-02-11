@@ -28,9 +28,9 @@ public class SMSS
 
   public SMSS()
   {
-    methodName = null;
-    senderClass = null;
-    senderName = null;
+    methodName = "";
+    senderClass = "";
+    senderName = "";
     receiverClasses = new ArrayList<ReceiverClass>();
     messages = new ArrayList<Message>();
     blocks = new ArrayList<Block>();

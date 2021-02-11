@@ -69,57 +69,29 @@ public class Block
     wasSet = true;
     return wasSet;
   }
-  /* Code from template association_SetOptionalOneToMandatoryMany */
+  /* Code from template association_SetOptionalOneToMany */
   public boolean setOperand(Operand aOperand)
   {
-    //
-    // This source of this source generation is association_SetOptionalOneToMandatoryMany.jet
-    // This set file assumes the generation of a maximumNumberOfXXX method does not exist because 
-    // it's not required (No upper bound)
-    //   
     boolean wasSet = false;
+    // line 32 "../../../../../SMSS_model.ump"
+    if (sMSS != null) {
+      		throw new RuntimeException("The block can only belong to either smss or operand");
+      	}
+    // END OF UMPLE BEFORE INJECTION
     Operand existingOperand = operand;
-
-    if (existingOperand == null)
+    operand = aOperand;
+    if (existingOperand != null && !existingOperand.equals(aOperand))
     {
-      if (aOperand != null)
-      {
-        if (aOperand.addBlock(this))
-        {
-          existingOperand = aOperand;
-          wasSet = true;
-        }
-      }
-    } 
-    else if (existingOperand != null)
-    {
-      if (aOperand == null)
-      {
-        if (existingOperand.minimumNumberOfBlock() < existingOperand.numberOfBlock())
-        {
-          existingOperand.removeBlock(this);
-          existingOperand = aOperand;  // aOperand == null
-          wasSet = true;
-        }
-      } 
-      else
-      {
-        if (existingOperand.minimumNumberOfBlock() < existingOperand.numberOfBlock())
-        {
-          existingOperand.removeBlock(this);
-          aOperand.addBlock(this);
-          existingOperand = aOperand;
-          wasSet = true;
-        }
-      }
+      existingOperand.removeBlock(this);
     }
-    if (wasSet)
+    if (aOperand != null)
     {
-      operand = existingOperand;
+      aOperand.addBlock(this);
     }
+    wasSet = true;
     return wasSet;
   }
-  
+
   public void delete()
   {
     if (sMSS != null)
@@ -130,16 +102,9 @@ public class Block
     }
     if (operand != null)
     {
-      if (operand.numberOfBlock() <= 1)
-      {
-        operand.delete();
-      }
-      else
-      {
-        Operand placeholderOperand = operand;
-        this.operand = null;
-        placeholderOperand.removeBlock(this);
-      }
+      Operand placeholderOperand = operand;
+      this.operand = null;
+      placeholderOperand.removeBlock(this);
     }
   }
 

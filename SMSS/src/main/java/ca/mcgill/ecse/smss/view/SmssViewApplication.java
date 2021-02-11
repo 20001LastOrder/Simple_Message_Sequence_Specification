@@ -1,6 +1,14 @@
 package ca.mcgill.ecse.smss.view;
 
+import java.lang.ModuleLayer.Controller;
+import java.util.ArrayList;
+import java.util.List;
+
+import ca.mcgill.ecse.smss.controller.InvalidInputException;
+import ca.mcgill.ecse.smss.controller.SmssController;
 import javafx.application.Application;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -14,7 +22,6 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -24,22 +31,27 @@ import javafx.stage.Stage;
 public class SmssViewApplication extends Application {
 	Stage mainStage;
 	GridPane root;
+	Event refreshUIEvent;
+	EventType<Event> refreshUIEventType;
+	List<Node> refreshableNodes;
+	
 	
 	@Override
 	public void start(Stage stage) throws Exception {
 		this.mainStage = stage;
+		refreshableNodes = new ArrayList<>();
+		
+		refreshUIEventType = new EventType<>("REFRESH");
 		
 		root = makeUI();
-		  
 		//Creating a scene object 
 		Scene scene = new Scene(root);  
-		  
 		//Setting title to the Stage 
 		stage.setTitle("SMSS"); 
-		     
 		//Adding scene to the stage 
 		stage.setScene(scene);  
 		stage.show(); 
+		refreshUI();
 	}
 	
 	private GridPane makeUI() {
@@ -74,7 +86,8 @@ public class SmssViewApplication extends Application {
 		gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 9);
 		gridPane.add(makeDeletionSection(), 0, 10);
 		gridPane.add(new Separator(Orientation.VERTICAL), 1, 4, 1, 7);
-		gridPane.add(makeMethodVisualizationSection(), 2, 4, 1, 7);		
+		gridPane.add(makeMethodVisualizationSection(), 2, 4, 1, 7);
+
 		return gridPane;
 }
 	
@@ -90,7 +103,20 @@ public class SmssViewApplication extends Application {
 		
 		// TODO: set action of the update sender button
 		updateSenderButton.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
+			if (senderTypeField.getText().trim().length() == 0 ||
+				methodNameField.getText().trim().length() == 0 ||
+				senderNameField.getText().trim().length() == 0) {
+				makePopupWindow("Type, sender name and method name need to be specified");
+				return;
+			}
+			
+			try {
+				SmssController.updateSenderInfo(senderTypeField.getText(),
+						senderNameField.getText(), methodNameField.getText());
+				refreshUI();
+			} catch (InvalidInputException e) {
+				makePopupWindow(e.getMessage());
+			}
 		});
 		
 		// create section container
@@ -305,10 +331,16 @@ public class SmssViewApplication extends Application {
 		ScrollPane methodVisualizationSection = new ScrollPane();
 		
 		// TODO Remove placeholder
-		Text methodText = new Text("asdasdadasd\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\nasedsd");
-		
+		Text methodText = new Text("asdasdadasd\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\nasedse");
 		// TODO Add action listener to retrieve the text content
+		methodVisualizationSection.addEventHandler(refreshUIEventType, e -> {
+			System.out.println("I'm also fired");
+			methodText.setText(SmssViewFormatUtil.createFormattedMethodContent());
+			e.consume();
+		});
+		refreshableNodes.add(methodVisualizationSection);
 		
+		methodVisualizationSection.setMaxHeight(400);;
 		methodVisualizationSection.setContent(methodText);
 		
 		return methodVisualizationSection;
@@ -341,7 +373,7 @@ public class SmssViewApplication extends Application {
 		dialogPane.setAlignment(Pos.CENTER);
 		dialogPane.setPadding(new Insets(10, 10, 10, 10)); 
 		dialogPane.getChildren().addAll(text, okButton);
-		Scene dialogScene = new Scene(dialogPane, 200, 100);
+		Scene dialogScene = new Scene(dialogPane, 400, 100);
 		dialog.setScene(dialogScene);
 		dialog.setTitle("Dialog"); 
 		dialog.show();
@@ -372,5 +404,11 @@ public class SmssViewApplication extends Application {
 		section.add(button, 1, 2);
 		
 		return section;
+	}
+	
+	public void refreshUI() {
+		for (Node node : refreshableNodes) {
+			node.fireEvent(new Event(refreshUIEventType));
+		}
 	}
 }
