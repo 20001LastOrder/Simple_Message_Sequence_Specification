@@ -1,12 +1,13 @@
 package ca.mcgill.ecse.smss.view;
 
-import java.lang.ModuleLayer.Controller;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import ca.mcgill.ecse.smss.controller.InvalidInputException;
 import ca.mcgill.ecse.smss.controller.SmssController;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
@@ -101,7 +102,6 @@ public class SmssViewApplication extends Application {
 		TextField senderNameField = new TextField();
 		Button updateSenderButton = new Button("Update");
 		
-		// TODO: set action of the update sender button
 		updateSenderButton.setOnAction(a -> {
 			if (senderTypeField.getText().trim().length() == 0 ||
 				methodNameField.getText().trim().length() == 0 ||
@@ -113,6 +113,9 @@ public class SmssViewApplication extends Application {
 			try {
 				SmssController.updateSenderInfo(senderTypeField.getText(),
 						senderNameField.getText(), methodNameField.getText());
+				senderTypeField.clear();
+				senderNameField.clear();
+				methodNameField.clear();
 				refreshUI();
 			} catch (InvalidInputException e) {
 				makePopupWindow(e.getMessage());
@@ -162,11 +165,27 @@ public class SmssViewApplication extends Application {
 	}
 	
 	private Node makeReceiverTypeSection() {		
-		return makeSingleTextFieldSection("Add Receiver Type", "Receiver Type: ", "Add");
+		return makeSingleTextFieldSection("Add Receiver Type", "Receiver Type: ", "Add", t -> {
+			try {
+				SmssController.createRecieverType(t);
+				refreshUI();
+			} catch (InvalidInputException e) {
+				// pop up warning to the user
+				makePopupWindow(e.getMessage());
+			}
+		});
 	}
 	
 	private Node makeMessageSection() {
-		return makeSingleTextFieldSection("Create Message", "Message Name: ", "Add");
+		return makeSingleTextFieldSection("Create Message", "Message Name: ", "Add", t -> {
+			try {
+				SmssController.createMessage(t);
+				refreshUI();
+			} catch (InvalidInputException e) {
+				// pop up warning to the user
+				makePopupWindow(e.getMessage());
+			}
+		});
 	}
 	
 	private Node makeAddToMethodSection() {
@@ -197,10 +216,7 @@ public class SmssViewApplication extends Application {
 		
 		// TODO: Add handling for button
 		addButton.setOnAction(a -> {
-			// makePopupWindow("to be implemented!");
-			GridPane p = (GridPane) mainStage.getScene().getRoot();
-			p.getChildren().remove(addToMethodSection);
-			p.add(makeMessageSection(), 0, 6);
+			makePopupWindow("to be implemented!");
 		});
 		
 		// add UI elements to the container
@@ -212,7 +228,13 @@ public class SmssViewApplication extends Application {
 		addToMethodSection.add(receiverTypeChoice, 1, 2);
 		addToMethodSection.add(receiverNameChoice, 2, 2);
 		addToMethodSection.add(addButton, 2, 3);
-
+		
+		// add on refresh event for the section
+		addToMethodSection.addEventHandler(refreshUIEventType, e -> {
+			messageChoice.setItems(FXCollections.observableList(SmssController.getMessages()));
+			// TODO set items for other choice boxes
+		});
+		refreshableNodes.add(addToMethodSection);
 
 		return addToMethodSection;
 	}
@@ -334,7 +356,6 @@ public class SmssViewApplication extends Application {
 		Text methodText = new Text("asdasdadasd\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\nasedse");
 		// TODO Add action listener to retrieve the text content
 		methodVisualizationSection.addEventHandler(refreshUIEventType, e -> {
-			System.out.println("I'm also fired");
 			methodText.setText(SmssViewFormatUtil.createFormattedMethodContent());
 			e.consume();
 		});
@@ -379,7 +400,8 @@ public class SmssViewApplication extends Application {
 		dialog.show();
 	}
 	
-	private Node makeSingleTextFieldSection(String sectionName, String labelName, String buttonName) {
+	private Node makeSingleTextFieldSection(String sectionName, String labelName, 
+											String buttonName, Consumer<String> textConsumer) {
 		// create UI elements
 		Label sectionLabel = new Label(sectionName);
 		Text text = new Text(labelName);
@@ -388,7 +410,8 @@ public class SmssViewApplication extends Application {
 		
 		// TODO set action of the add button
 		button.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
+			textConsumer.accept(field.getText());
+			field.clear();
 		});
 		
 		// create section container
