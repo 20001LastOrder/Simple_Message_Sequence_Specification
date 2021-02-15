@@ -24,7 +24,7 @@ class ReceiverObject
 
 class MessageExchange
 {
-  
+  isA Block; 
 }
 
 class Block {
@@ -50,6 +50,7 @@ class Message
 
 class Fragment {
   isA Block;
+  boolean isFinished;
   1 fragment <@>- * Operand operands;
 }
 

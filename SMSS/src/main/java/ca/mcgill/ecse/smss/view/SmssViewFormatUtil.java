@@ -10,10 +10,8 @@ public final class SmssViewFormatUtil {
 	public static String createFormattedMethodContent() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(SmssController.getSenderClass()).append(" ")
-			.append(SmssController.getMethodName()).append("\n");
-		
-		// TODO: iterate the blocks to create visualization of the method body
-		
+			.append(SmssController.getMethodName()).append("\n")
+			.append(SmssController.getMethodBody());
 		return sb.toString();
 	}
 }

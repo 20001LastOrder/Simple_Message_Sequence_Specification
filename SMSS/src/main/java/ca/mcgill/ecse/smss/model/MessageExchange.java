@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.smss.model;
 
 // line 25 "../../../../../SMSS_model.ump"
-public class MessageExchange
+public class MessageExchange extends Block
 {
 
   //------------------------
@@ -21,6 +21,7 @@ public class MessageExchange
 
   public MessageExchange(ReceiverObject aReceiver, Message aMessage)
   {
+    super();
     boolean didAddReceiver = setReceiver(aReceiver);
     if (!didAddReceiver)
     {
@@ -99,6 +100,7 @@ public class MessageExchange
     {
       placeholderMessage.removeMessageExchange(this);
     }
+    super.delete();
   }
 
 }

@@ -12,6 +12,9 @@ public class Fragment extends Block
   // MEMBER VARIABLES
   //------------------------
 
+  //Fragment Attributes
+  private boolean isFinished;
+
   //Fragment Associations
   private List<Operand> operands;
 
@@ -19,15 +22,29 @@ public class Fragment extends Block
   // CONSTRUCTOR
   //------------------------
 
-  public Fragment()
+  public Fragment(boolean aIsFinished)
   {
     super();
+    isFinished = aIsFinished;
     operands = new ArrayList<Operand>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
+
+  public boolean setIsFinished(boolean aIsFinished)
+  {
+    boolean wasSet = false;
+    isFinished = aIsFinished;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public boolean getIsFinished()
+  {
+    return isFinished;
+  }
   /* Code from template association_GetMany */
   public Operand getOperand(int index)
   {
@@ -143,4 +160,10 @@ public class Fragment extends Block
     super.delete();
   }
 
+
+  public String toString()
+  {
+    return super.toString() + "["+
+            "isFinished" + ":" + getIsFinished()+ "]";
+  }
 }

@@ -141,13 +141,22 @@ public class SmssViewApplication extends Application {
 		TextField receiverNameField = new TextField();
 		Button addReceiverButton = new Button("Add");
 		
-		// TODO add event handling on refreshing for receiverTypeChoice
 		receiverTypeChoice.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		GridPane.setHgrow(receiverTypeChoice, Priority.ALWAYS);
 		
-		// TODO set action for add button
 		addReceiverButton.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
+			String receiverType = receiverTypeChoice.getValue();
+			String receiverName = receiverNameField.getText();
+			
+			try {
+				SmssController.createReceiver(receiverType, receiverName);
+				
+				// clear the text field and selection
+				receiverNameField.clear();
+				receiverTypeChoice.setValue("");
+			} catch (InvalidInputException e) {
+				makePopupWindow(e.getMessage());
+			}
 		});
 		
 		// create section container
@@ -160,6 +169,12 @@ public class SmssViewApplication extends Application {
 		receiverSection.add(receiverTypeChoice, 0, 2);
 		receiverSection.add(receiverNameField, 1, 2);
 		receiverSection.add(addReceiverButton, 2, 2);
+		
+		// add event handler on refresh the UI
+		receiverSection.addEventHandler(refreshUIEventType, e -> {
+			receiverTypeChoice.setItems(FXCollections.observableList(SmssController.getRecieverTypes()));
+		});
+		refreshableNodes.add(receiverSection);
 		
 		return receiverSection;
 	}
@@ -214,9 +229,21 @@ public class SmssViewApplication extends Application {
 		addButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		GridPane.setHgrow(addButton, Priority.ALWAYS);
 		
-		// TODO: Add handling for button
 		addButton.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
+			String messageName = messageChoice.getValue();
+			String receiver = receiverNameChoice.getValue();
+			try {
+				SmssController.assignMessage(messageName, receiver);
+				refreshUI();
+			} catch (InvalidInputException e) {
+				makePopupWindow(e.getMessage());
+			}
+		});
+		
+		// add click event handling for receiver type to refresh receivers
+		receiverTypeChoice.setOnAction(a -> {
+			String type = receiverTypeChoice.getValue();
+			receiverNameChoice.setItems(FXCollections.observableList(SmssController.getRecieverbyType(type)));
 		});
 		
 		// add UI elements to the container
@@ -232,7 +259,7 @@ public class SmssViewApplication extends Application {
 		// add on refresh event for the section
 		addToMethodSection.addEventHandler(refreshUIEventType, e -> {
 			messageChoice.setItems(FXCollections.observableList(SmssController.getMessages()));
-			// TODO set items for other choice boxes
+			receiverTypeChoice.setItems(FXCollections.observableList(SmssController.getRecieverTypes()));
 		});
 		refreshableNodes.add(addToMethodSection);
 
