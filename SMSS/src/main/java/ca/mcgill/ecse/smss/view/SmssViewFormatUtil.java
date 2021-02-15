@@ -11,7 +11,7 @@ public final class SmssViewFormatUtil {
 		StringBuilder sb = new StringBuilder();
 		sb.append(SmssController.getSenderClass()).append(" ")
 			.append(SmssController.getMethodName()).append("\n")
-			.append(SmssController.getMethodBody());
+			.append(SmssController.getMethodBody().replaceAll("(?m)^", "\t"));
 		return sb.toString();
 	}
 }

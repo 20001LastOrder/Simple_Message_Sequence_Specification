@@ -103,4 +103,10 @@ public class MessageExchange extends Block
     super.delete();
   }
 
+  // line 30 "../../../../../SMSS_model.ump"
+   public String toString(){
+    return String.format("%s -- %s --> %s : %s", message.getSMSS().getSenderName(), message.getName(), 
+			               receiver.getName(), receiver.getReceiverClass().getName());
+  }
+
 }

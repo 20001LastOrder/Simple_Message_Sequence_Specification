@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.smss.model;
 import java.util.*;
 
-// line 61 "../../../../../SMSS_model.ump"
+// line 80 "../../../../../SMSS_model.ump"
 public class AlternativeFragment extends Fragment
 {
 
@@ -16,9 +16,9 @@ public class AlternativeFragment extends Fragment
   // CONSTRUCTOR
   //------------------------
 
-  public AlternativeFragment(boolean aIsFinished)
+  public AlternativeFragment()
   {
-    super(aIsFinished);
+    super();
   }
 
   //------------------------
@@ -28,6 +28,11 @@ public class AlternativeFragment extends Fragment
   public void delete()
   {
     super.delete();
+  }
+
+  // line 83 "../../../../../SMSS_model.ump"
+   public String toString(){
+    return "ALT:" + super.toString().replaceAll("(?m)^", "\t");
   }
 
 }

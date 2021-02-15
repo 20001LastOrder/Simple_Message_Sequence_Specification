@@ -3,8 +3,8 @@
 
 package ca.mcgill.ecse.smss.model;
 
-// line 30 "../../../../../SMSS_model.ump"
-public class Block
+// line 35 "../../../../../SMSS_model.ump"
+public abstract class Block
 {
 
   //------------------------
@@ -51,7 +51,7 @@ public class Block
   public boolean setSMSS(SMSS aSMSS)
   {
     boolean wasSet = false;
-    // line 38 "../../../../../SMSS_model.ump"
+    // line 44 "../../../../../SMSS_model.ump"
     if (operand != null) {
       		throw new RuntimeException("The block can only belong to either smss or operand");
       	}
@@ -73,7 +73,7 @@ public class Block
   public boolean setOperand(Operand aOperand)
   {
     boolean wasSet = false;
-    // line 32 "../../../../../SMSS_model.ump"
+    // line 38 "../../../../../SMSS_model.ump"
     if (sMSS != null) {
       		throw new RuntimeException("The block can only belong to either smss or operand");
       	}

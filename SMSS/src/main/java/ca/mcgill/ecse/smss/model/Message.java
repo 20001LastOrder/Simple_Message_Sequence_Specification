@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.smss.model;
 import java.util.*;
 
-// line 44 "../../../../../SMSS_model.ump"
+// line 50 "../../../../../SMSS_model.ump"
 public class Message extends Block
 {
 

@@ -25,9 +25,15 @@ class ReceiverObject
 class MessageExchange
 {
   isA Block; 
+  
+  public String toString() {
+	  return String.format("%s -- %s --> %s : %s", message.getSMSS().getSenderName(), message.getName(), 
+			               receiver.getName(), receiver.getReceiverClass().getName());
+  }
 }
 
 class Block {
+  abstract;
   before setOperand {
   	if (sMSS != null) {
   		throw new RuntimeException("The block can only belong to either smss or operand");
@@ -49,21 +55,46 @@ class Message
 }
 
 class Fragment {
+  abstract;
   isA Block;
-  boolean isFinished;
+  boolean isFinished = false;
   1 fragment <@>- * Operand operands;
+  public String toString() {
+  	StringBuilder sb = new StringBuilder();
+	for (Operand op : getOperands()) {
+		sb.append("\n").append(op.toString());
+	}
+	  
+	return sb.toString();
+  }
 }
 
 class ParallelFragment {
  isA Fragment;
+ 
+  public String toString() {  
+	return "PAR:" + super.toString().replaceAll("(?m)^", "\t");
+  }
 }
 
 class AlternativeFragment {
- isA Fragment;
+  isA Fragment;
+  public String toString() {  
+	 return "ALT:" + super.toString().replaceAll("(?m)^", "\t");
+  }
 }
 
 class Operand {
   String condition;
-  0..1 operand <@>- * Block block;
+  0..1 operand <@>- * Block blocks;
  
+  public String toString(){
+	  StringBuilder sb = new StringBuilder();
+	  sb.append('[').append(condition).append(']');
+	  for (Block block : blocks) {
+		  sb.append("\n").append(block.toString().replaceAll("(?m)^", "\t"));
+	  }
+	  
+	  return sb.toString();
+  }
 }

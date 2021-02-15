@@ -35,12 +35,15 @@ public class SmssViewApplication extends Application {
 	Event refreshUIEvent;
 	EventType<Event> refreshUIEventType;
 	List<Node> refreshableNodes;
-	
+	List<Node> nodesToDelete;
+	List<Node> nodesToAdd;
 	
 	@Override
 	public void start(Stage stage) throws Exception {
 		this.mainStage = stage;
 		refreshableNodes = new ArrayList<>();
+		nodesToDelete = new ArrayList<>();
+		nodesToAdd = new ArrayList<>();
 		
 		refreshUIEventType = new EventType<>("REFRESH");
 		
@@ -88,7 +91,8 @@ public class SmssViewApplication extends Application {
 		gridPane.add(makeDeletionSection(), 0, 10);
 		gridPane.add(new Separator(Orientation.VERTICAL), 1, 4, 1, 7);
 		gridPane.add(makeMethodVisualizationSection(), 2, 4, 1, 7);
-
+		
+		refreshableNodes.addAll(nodesToAdd);
 		return gridPane;
 }
 	
@@ -174,7 +178,7 @@ public class SmssViewApplication extends Application {
 		receiverSection.addEventHandler(refreshUIEventType, e -> {
 			receiverTypeChoice.setItems(FXCollections.observableList(SmssController.getRecieverTypes()));
 		});
-		refreshableNodes.add(receiverSection);
+		nodesToAdd.add(receiverSection);
 		
 		return receiverSection;
 	}
@@ -261,7 +265,7 @@ public class SmssViewApplication extends Application {
 			messageChoice.setItems(FXCollections.observableList(SmssController.getMessages()));
 			receiverTypeChoice.setItems(FXCollections.observableList(SmssController.getRecieverTypes()));
 		});
-		refreshableNodes.add(addToMethodSection);
+		nodesToAdd.add(addToMethodSection);
 
 		return addToMethodSection;
 	}
@@ -288,15 +292,19 @@ public class SmssViewApplication extends Application {
 		GridPane.setHgrow(fragmentTypeChoice, Priority.ALWAYS);
 		
 		
-		// TODO: Add handling for button
-		createFragmentButton.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
-			
+		createFragmentButton.setOnAction(a -> {			
 			FragmentType selectedType = fragmentTypeChoice.getValue();
-			root.add(makeOperandSection(selectedType), 
-					GridPane.getColumnIndex(section), 
-					GridPane.getRowIndex(section));
-			root.getChildren().remove(section);
+			try {
+				if (selectedType == FragmentType.ALT) {
+					SmssController.createAltFragment();
+				} else {
+					SmssController.createParFragment();
+				}
+				
+				refreshUI();
+			} catch (InvalidInputException e) {
+				makePopupWindow(e.getMessage());
+			}
 		});
 		
 		// Add UI elements to the container
@@ -305,6 +313,25 @@ public class SmssViewApplication extends Application {
 		section.add(fragmentTypeChoice, 0, 2);
 		section.add(createFragmentButton, 1, 2);
 		
+		// check whether to switch to create operand on refresh
+		section.addEventHandler(refreshUIEventType, e -> {
+			// switch to create operand if is in a fragment
+			if (SmssController.isInAltFragment()) {
+				root.add(makeOperandSection(FragmentType.ALT), 
+						GridPane.getColumnIndex(section), 
+						GridPane.getRowIndex(section));
+				root.getChildren().remove(section);
+				nodesToDelete.add(section);
+			} else if (SmssController.isInParFragment()) {
+				root.add(makeOperandSection(FragmentType.PAR), 
+						GridPane.getColumnIndex(section), 
+						GridPane.getRowIndex(section));
+				root.getChildren().remove(section);
+				nodesToDelete.add(section);
+			}
+		});
+		
+		nodesToAdd.add(section);
 		return section;
 	}
 	
@@ -328,16 +355,27 @@ public class SmssViewApplication extends Application {
 		
 		// TODO: add event handling for buttons
 		addNewOperandButton.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
+			try {
+				if (fragmentType == FragmentType.ALT) {
+					String condition = conditionField.getText();
+					SmssController.createOperand(condition);
+				} else {
+					SmssController.createOperand("");
+				}
+				refreshUI();
+			} catch (InvalidInputException e) {
+				makePopupWindow(e.getMessage());
+			}
 		});
 		
 		endFragmentButton.setOnAction(a -> {
-			// TODO: define condition for this button action
-			
-			root.add(makeFragmentSection(), 
-					GridPane.getColumnIndex(section), 
-					GridPane.getRowIndex(section));
-			root.getChildren().remove(section);
+			try {
+				SmssController.finishFragment();
+				refreshUI();
+			} catch (InvalidInputException e) {
+				makePopupWindow(e.getMessage());
+			}
+
 		});
 		
 		// add UI elements to the container
@@ -350,6 +388,19 @@ public class SmssViewApplication extends Application {
 		}
 		section.add(addNewOperandButton, columnIndex, rowIndex++);
 		section.add(endFragmentButton, columnIndex, rowIndex);
+		
+		section.addEventHandler(refreshUIEventType, e -> {
+			if (!SmssController.isInAltFragment() && !SmssController.isInParFragment()) {
+				root.add(makeFragmentSection(), 
+						GridPane.getColumnIndex(section), 
+						GridPane.getRowIndex(section));
+				root.getChildren().remove(section);
+				nodesToDelete.add(section);
+			} else if (fragmentType == FragmentType.ALT) {
+				conditionField.clear();
+			}
+		});
+		nodesToAdd.add(section);
 		
 		return section;
 	}
@@ -367,7 +418,12 @@ public class SmssViewApplication extends Application {
 		GridPane.setHgrow(deleteLastMessageButton, Priority.ALWAYS);
 		// TODO: add event handling for buttons
 		deleteLastMessageButton.setOnAction(a -> {
-			makePopupWindow("to be implemented!");
+			try {
+				SmssController.deleteLastMessage();
+				refreshUI();
+			} catch (InvalidInputException e) {
+				makePopupWindow(e.getMessage());
+			}
 		});
 		
 		// add UI elements to the container
@@ -380,15 +436,16 @@ public class SmssViewApplication extends Application {
 		ScrollPane methodVisualizationSection = new ScrollPane();
 		
 		// TODO Remove placeholder
-		Text methodText = new Text("asdasdadasd\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\nasedse");
+		Text methodText = new Text("");
 		// TODO Add action listener to retrieve the text content
 		methodVisualizationSection.addEventHandler(refreshUIEventType, e -> {
 			methodText.setText(SmssViewFormatUtil.createFormattedMethodContent());
 			e.consume();
 		});
-		refreshableNodes.add(methodVisualizationSection);
+		nodesToAdd.add(methodVisualizationSection);
 		
-		methodVisualizationSection.setMaxHeight(400);;
+		methodVisualizationSection.setMaxHeight(450);
+		methodVisualizationSection.setMinHeight(450);
 		methodVisualizationSection.setContent(methodText);
 		
 		return methodVisualizationSection;
@@ -421,7 +478,7 @@ public class SmssViewApplication extends Application {
 		dialogPane.setAlignment(Pos.CENTER);
 		dialogPane.setPadding(new Insets(10, 10, 10, 10)); 
 		dialogPane.getChildren().addAll(text, okButton);
-		Scene dialogScene = new Scene(dialogPane, 400, 100);
+		Scene dialogScene = new Scene(dialogPane, 100 + message.length() * 5, 100);
 		dialog.setScene(dialogScene);
 		dialog.setTitle("Dialog"); 
 		dialog.show();
@@ -457,8 +514,13 @@ public class SmssViewApplication extends Application {
 	}
 	
 	public void refreshUI() {
+		nodesToDelete.clear();
+		nodesToAdd.clear();
 		for (Node node : refreshableNodes) {
 			node.fireEvent(new Event(refreshUIEventType));
 		}
+		
+		refreshableNodes.removeAll(nodesToDelete);
+		refreshableNodes.addAll(nodesToAdd);
 	}
 }

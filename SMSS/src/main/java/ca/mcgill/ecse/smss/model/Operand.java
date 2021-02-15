@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.smss.model;
 import java.util.*;
 
-// line 65 "../../../../../SMSS_model.ump"
+// line 87 "../../../../../SMSS_model.ump"
 public class Operand
 {
 
@@ -16,7 +16,7 @@ public class Operand
   private String condition;
 
   //Operand Associations
-  private List<Block> block;
+  private List<Block> blocks;
   private Fragment fragment;
 
   //------------------------
@@ -26,7 +26,7 @@ public class Operand
   public Operand(String aCondition, Fragment aFragment)
   {
     condition = aCondition;
-    block = new ArrayList<Block>();
+    blocks = new ArrayList<Block>();
     boolean didAddFragment = setFragment(aFragment);
     if (!didAddFragment)
     {
@@ -53,31 +53,31 @@ public class Operand
   /* Code from template association_GetMany */
   public Block getBlock(int index)
   {
-    Block aBlock = block.get(index);
+    Block aBlock = blocks.get(index);
     return aBlock;
   }
 
-  public List<Block> getBlock()
+  public List<Block> getBlocks()
   {
-    List<Block> newBlock = Collections.unmodifiableList(block);
-    return newBlock;
+    List<Block> newBlocks = Collections.unmodifiableList(blocks);
+    return newBlocks;
   }
 
-  public int numberOfBlock()
+  public int numberOfBlocks()
   {
-    int number = block.size();
+    int number = blocks.size();
     return number;
   }
 
-  public boolean hasBlock()
+  public boolean hasBlocks()
   {
-    boolean has = block.size() > 0;
+    boolean has = blocks.size() > 0;
     return has;
   }
 
   public int indexOfBlock(Block aBlock)
   {
-    int index = block.indexOf(aBlock);
+    int index = blocks.indexOf(aBlock);
     return index;
   }
   /* Code from template association_GetOne */
@@ -86,7 +86,7 @@ public class Operand
     return fragment;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfBlock()
+  public static int minimumNumberOfBlocks()
   {
     return 0;
   }
@@ -94,7 +94,7 @@ public class Operand
   public boolean addBlock(Block aBlock)
   {
     boolean wasAdded = false;
-    if (block.contains(aBlock)) { return false; }
+    if (blocks.contains(aBlock)) { return false; }
     Operand existingOperand = aBlock.getOperand();
     if (existingOperand == null)
     {
@@ -107,7 +107,7 @@ public class Operand
     }
     else
     {
-      block.add(aBlock);
+      blocks.add(aBlock);
     }
     wasAdded = true;
     return wasAdded;
@@ -116,9 +116,9 @@ public class Operand
   public boolean removeBlock(Block aBlock)
   {
     boolean wasRemoved = false;
-    if (block.contains(aBlock))
+    if (blocks.contains(aBlock))
     {
-      block.remove(aBlock);
+      blocks.remove(aBlock);
       aBlock.setOperand(null);
       wasRemoved = true;
     }
@@ -131,9 +131,9 @@ public class Operand
     if(addBlock(aBlock))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfBlock()) { index = numberOfBlock() - 1; }
-      block.remove(aBlock);
-      block.add(index, aBlock);
+      if(index > numberOfBlocks()) { index = numberOfBlocks() - 1; }
+      blocks.remove(aBlock);
+      blocks.add(index, aBlock);
       wasAdded = true;
     }
     return wasAdded;
@@ -142,12 +142,12 @@ public class Operand
   public boolean addOrMoveBlockAt(Block aBlock, int index)
   {
     boolean wasAdded = false;
-    if(block.contains(aBlock))
+    if(blocks.contains(aBlock))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfBlock()) { index = numberOfBlock() - 1; }
-      block.remove(aBlock);
-      block.add(index, aBlock);
+      if(index > numberOfBlocks()) { index = numberOfBlocks() - 1; }
+      blocks.remove(aBlock);
+      blocks.add(index, aBlock);
       wasAdded = true;
     } 
     else 
@@ -178,11 +178,11 @@ public class Operand
 
   public void delete()
   {
-    while (block.size() > 0)
+    while (blocks.size() > 0)
     {
-      Block aBlock = block.get(block.size() - 1);
+      Block aBlock = blocks.get(blocks.size() - 1);
       aBlock.delete();
-      block.remove(aBlock);
+      blocks.remove(aBlock);
     }
     
     Fragment placeholderFragment = fragment;
@@ -193,11 +193,15 @@ public class Operand
     }
   }
 
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "condition" + ":" + getCondition()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "fragment = "+(getFragment()!=null?Integer.toHexString(System.identityHashCode(getFragment())):"null");
+  // line 92 "../../../../../SMSS_model.ump"
+   public String toString(){
+    StringBuilder sb = new StringBuilder();
+	  sb.append('[').append(condition).append(']');
+	  for (Block block : blocks) {
+		  sb.append("\n").append(block.toString().replaceAll("(?m)^", "\t"));
+	  }
+	  
+	  return sb.toString();
   }
+
 }

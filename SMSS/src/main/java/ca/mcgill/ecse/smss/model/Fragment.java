@@ -4,8 +4,8 @@
 package ca.mcgill.ecse.smss.model;
 import java.util.*;
 
-// line 51 "../../../../../SMSS_model.ump"
-public class Fragment extends Block
+// line 57 "../../../../../SMSS_model.ump"
+public abstract class Fragment extends Block
 {
 
   //------------------------
@@ -22,10 +22,10 @@ public class Fragment extends Block
   // CONSTRUCTOR
   //------------------------
 
-  public Fragment(boolean aIsFinished)
+  public Fragment()
   {
     super();
-    isFinished = aIsFinished;
+    isFinished = false;
     operands = new ArrayList<Operand>();
   }
 
@@ -160,10 +160,14 @@ public class Fragment extends Block
     super.delete();
   }
 
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "isFinished" + ":" + getIsFinished()+ "]";
+  // line 63 "../../../../../SMSS_model.ump"
+   public String toString(){
+    StringBuilder sb = new StringBuilder();
+	for (Operand op : getOperands()) {
+		sb.append("\n").append(op.toString());
+	}
+	  
+	return sb.toString();
   }
+
 }
